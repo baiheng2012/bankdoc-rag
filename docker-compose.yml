@@ -1,0 +1,19 @@
+# Runs PostgreSQL with the pgvector extension for vector similarity search.
+services:
+  db:
+    image: pgvector/pgvector:pg16
+    container_name: bankdoc-db
+    environment:
+      POSTGRES_USER: bankdoc
+      POSTGRES_PASSWORD: bankdoc_dev_pw   # Dev only. Never commit real secrets.
+      POSTGRES_DB: bankdoc
+    ports:
+      - "5432:5432"
+    volumes:
+      # Persist data across container restarts
+      - pgdata:/var/lib/postgresql/data
+      # Scripts in this folder run automatically on first startup
+      - ./db/init.sql:/docker-entrypoint-initdb.d/init.sql:ro
+
+volumes:
+  pgdata:

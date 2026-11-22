@@ -1,0 +1,25 @@
+# Web API
+fastapi>=0.110
+uvicorn[standard]>=0.29
+
+# Configuration management (reads .env files into typed settings)
+pydantic-settings>=2.2
+
+# PostgreSQL driver and pgvector helper
+psycopg[binary,pool]>=3.1
+pgvector>=0.2.5
+
+# Local embedding model
+sentence-transformers>=2.7
+
+# PDF parsing
+pypdf>=4.0
+
+# LLM provider SDKs (we will use one of them, or Ollama via httpx)
+openai>=1.30
+anthropic>=0.30
+httpx>=0.27
+
+# Testing and code quality
+pytest>=8.0
+ruff>=0.4
