@@ -10,7 +10,8 @@ from bankdoc.generation import answerer
 from bankdoc.generation.citations import extract_citation_numbers, split_valid_invalid
 from bankdoc.generation.prompt import REFUSAL_TEXT, build_user_prompt
 from bankdoc.retrieval.retriever import RetrievedChunk
-
+from bankdoc.guardrails.language import is_supported_script
+from bankdoc.guardrails.pii import redact_pii, strip_placeholders
 
 def make_chunk(i: int, score: float = 0.8) -> RetrievedChunk:
     return RetrievedChunk(

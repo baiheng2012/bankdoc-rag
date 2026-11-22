@@ -90,3 +90,19 @@ def redact_pii(text: str) -> RedactionResult:
                     lambda d: len(d) == 9 and luhn_valid(d))
     text = _replace(_PHONE, "PHONE", text, findings)
     return RedactionResult(text=text, findings=findings)
+
+
+# Matches the placeholders produced by redact_pii().
+_PLACEHOLDER = re.compile(r"\[(?:EMAIL|CREDIT_CARD|SIN|PHONE)\]")
+
+
+def strip_placeholders(text: str) -> str:
+    """Remove redaction placeholders and tidy the whitespace.
+
+    Used to build the SEARCH query. A token like [EMAIL] has no meaning for
+    semantic search and measurably lowers similarity scores, so the search
+    sees the question without it. The LLM still receives the full redacted
+    question, and the audit log stores the redacted version.
+    """
+    without_tokens = _PLACEHOLDER.sub(" ", text)
+    return re.sub(r"\s+", " ", without_tokens).strip()

@@ -22,12 +22,16 @@ from bankdoc.guardrails.output_checks import find_ungrounded_numbers, leaks_syst
 from bankdoc.guardrails.pii import redact_pii
 from bankdoc.retrieval.recency import sort_newest_first
 from bankdoc.retrieval.retriever import RetrievedChunk, retrieve
+from bankdoc.guardrails.language import is_supported_script
+from bankdoc.guardrails.pii import redact_pii, strip_placeholders
+
+
 
 logger = logging.getLogger(__name__)
 
 BLOCKED_TEXT = "Your request was blocked by a security policy."
 UNVERIFIED_TEXT = "The generated answer could not be verified against the sources, so it was withheld."
-
+UNSUPPORTED_LANGUAGE_TEXT = "Please ask your question in English; other scripts are not supported yet."
 
 @dataclass
 class AnswerResult:
@@ -37,6 +41,7 @@ class AnswerResult:
     refused: bool
     # Reasons: no_relevant_sources, model_refused, no_valid_citation, prompt_injection,
     #          unsafe_sources, output_leak, ungrounded_numbers
+    #unsupported_language
     refusal_reason: str | None = None
     citations: list[RetrievedChunk] = field(default_factory=list)  # chunks actually cited
     invalid_citations: list[int] = field(default_factory=list)  # hallucinated numbers
@@ -84,13 +89,28 @@ def answer_question(
         return result
 
     # Guardrail 2: stop obvious injection attacks before spending any compute.
+    # Guardrail 1b: script check. Chinese, Arabic, Cyrillic ... cannot be
+    # searched reliably or inspected by the English injection rules.
+    if not is_supported_script(safe_question):
+        logger.info("Refusing: unsupported script")
+        return finish(_refuse("unsupported_language", [], UNSUPPORTED_LANGUAGE_TEXT))
+
+    # (existing code) Guardrail 2: injection check on safe_question stays here.    
+    
     matched_rules = detect_injection(safe_question)
     if matched_rules:
         logger.warning("Blocked question: prompt-injection rules %s", matched_rules)
         return finish(_refuse("prompt_injection", [], BLOCKED_TEXT))
-
-    retrieved = retrieve(safe_question, clearance)
-
+    search_query = strip_placeholders(safe_question)
+    # Refuse only if redaction removed (almost) everything, i.e. the question
+    # was essentially nothing but PII. `redaction.findings` is non-empty only
+    # when something was actually redacted, so a short question that
+    # contained no PII is NOT affected by this check.
+    if redaction.findings and len(search_query) < 3:
+        return finish(_refuse("no_relevant_sources", []))
+    #retrieved = retrieve(safe_question, clearance)
+    
+    retrieved = retrieve(search_query, clearance)
     # Keep only relevant chunks, newest report first.
     candidates = sort_newest_first([c for c in retrieved if c.score >= settings.min_score])
 
