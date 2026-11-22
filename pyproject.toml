@@ -1,0 +1,10 @@
+# Project-level tool configuration.
+
+[tool.pytest.ini_options]
+# Lets pytest import "bankdoc" directly from the src/ folder.
+pythonpath = ["src"]
+testpaths = ["tests"]
+
+[tool.ruff]
+line-length = 100
+src = ["src"]
