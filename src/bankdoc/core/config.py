@@ -35,7 +35,7 @@ class Settings(BaseSettings):
 
     # --- Retrieval ---
     top_k: int = 5
-
+    min_score: float = 0.55
 
 @lru_cache
 def get_settings() -> Settings:
