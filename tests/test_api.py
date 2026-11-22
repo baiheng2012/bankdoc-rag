@@ -29,9 +29,9 @@ def client(monkeypatch):
     def fake_answer(question, clearance):
         state["clearance"] = clearance
         return AnswerResult(
-            answer="Inflation eases [1].", refused=False, citations=[make_chunk()]
+            answer="Inflation eases [1].", refused=False, citations=[make_chunk()],
+            redacted_question=question,
         )
-
     monkeypatch.setattr(main, "answer_question", fake_answer)
     monkeypatch.setattr(main, "write_audit_log", lambda **kwargs: state["audit"].append(kwargs))
     main.app.dependency_overrides[get_current_user] = lambda: User("alice", 1)
@@ -124,3 +124,18 @@ def test_generated_keys_are_unique_and_prefixed():
     keys = {generate_api_key() for _ in range(50)}
     assert len(keys) == 50
     assert all(k.startswith("bk_") for k in keys)
+
+
+def test_audit_stores_redacted_question_not_raw(client, monkeypatch):
+    test_client, state = client
+    monkeypatch.setattr(
+        main, "answer_question",
+        lambda question, clearance: AnswerResult(
+            answer="ok [1].", refused=False, citations=[make_chunk()],
+            redacted_question="Contact [EMAIL] about inflation",
+        ),
+    )
+    test_client.post("/ask", json={"question": "Contact a@b.com about inflation"})
+    logged = state["audit"][0]["question"]
+    assert logged == "Contact [EMAIL] about inflation"
+    assert "a@b.com" not in logged

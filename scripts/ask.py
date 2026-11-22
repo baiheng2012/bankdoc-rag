@@ -32,6 +32,10 @@ def main() -> None:
 
     print("\n=== ANSWER ===")
     print(result.answer)
+    if result.pii_findings:
+        print(f"\n(PII redacted from your question: {result.pii_findings})")
+        print(f"(Question as processed: {result.redacted_question})")
+
     if result.refused:
         print(f"\n(refused, reason: {result.refusal_reason})")
     else:

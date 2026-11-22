@@ -67,7 +67,7 @@ def ask(body: AskRequest, user: User = Depends(get_current_user)) -> AskResponse
     # fails with 500 and the answer is not returned (fail closed).
     write_audit_log(
         user_id=user.user_id,
-        question=body.question,
+        question=result.redacted_question,   # NEVER the raw question: it may contain PII
         answer=result.answer,
         cited_chunk_ids=[c.chunk_id for c in result.citations],
         blocked=result.refused,
