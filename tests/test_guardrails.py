@@ -262,3 +262,25 @@ def test_llm_failure_becomes_a_refusal_not_an_exception(monkeypatch):
     patch_retrieval(monkeypatch, [make_chunk(1)])
     result = answerer.answer_question("q", llm=CrashingLLM())
     assert result.refused and result.refusal_reason == "llm_error"
+
+def test_number_from_provided_but_uncited_chunk_is_allowed(monkeypatch):
+    # The answer cites [1] only, but the figure 0.26 sits in source [2].
+    # It is a real figure from the sources, so the answer is not withheld.
+    patch_retrieval(monkeypatch, [
+        make_chunk(1, "Tariffs raise prices by 0.66%."),
+        make_chunk(2, "Markups contribute a further 0.26 percentage point decrease."),
+    ])
+    result = answerer.answer_question(
+        "q", llm=RecordingLLM("Prices rise 0.66% with a 0.26 decrease [1].")
+    )
+    assert not result.refused
+
+
+def test_number_in_no_source_is_still_withheld(monkeypatch):
+    # The mirror case: the figure 1.5 appears in no provided source.
+    patch_retrieval(monkeypatch, [
+        make_chunk(1, "GDP growth is 1% in 2026."),
+        make_chunk(2, "A revision of 0.3 points was made."),
+    ])
+    result = answerer.answer_question("q", llm=RecordingLLM("Growth is 1.5% [1]."))
+    assert result.refused and result.refusal_reason == "ungrounded_numbers"    
