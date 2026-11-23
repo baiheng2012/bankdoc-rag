@@ -21,9 +21,10 @@ class LLMProvider(Protocol):
 class OllamaProvider:
     """Talks to a local Ollama server over its HTTP API."""
 
-    def __init__(self, base_url: str, model: str) -> None:
+    def __init__(self, base_url: str, model: str, timeout: float = 120.0) -> None:
         self.base_url = base_url.rstrip("/")
         self.model = model
+        self.timeout = timeout
 
     def generate(self, system: str, user: str) -> str:
         """Send one chat request and return the model's text reply."""
@@ -40,7 +41,7 @@ class OllamaProvider:
                 # num_ctx is the context window in tokens; Ollama's default is too small for RAG.
                 "options": {"temperature": 0, "num_ctx": 8192},
             },
-            timeout=300.0,  # local models can be slow on the first call (model loading)
+            timeout=self.timeout,  
         )
         response.raise_for_status()
         return response.json()["message"]["content"]
@@ -96,8 +97,8 @@ def get_llm() -> LLMProvider:
     """
     s = get_settings()
     provider = s.llm_provider.lower()
-    if provider == "ollama":
-        return OllamaProvider(s.ollama_base_url, s.llm_model)
+    if provider == "ollama":        
+        return OllamaProvider(s.ollama_base_url, s.llm_model, s.llm_timeout_seconds)    
     if provider == "openai":
         if not s.openai_api_key:
             raise ValueError("OPENAI_API_KEY is empty in .env")

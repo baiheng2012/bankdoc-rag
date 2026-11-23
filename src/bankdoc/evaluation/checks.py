@@ -48,13 +48,16 @@ def evaluate_case(case: EvalCase, result: AnswerResult) -> list[CheckResult]:
     checks: list[CheckResult] = []
 
     if "refused" in expect:
+        # When numeric grounding blocked the answer, say WHICH numbers.
+        extra = (f", ungrounded numbers: {result.ungrounded_numbers}"
+                 if result.ungrounded_numbers else "")
         checks.append(CheckResult(
             "refused",
             result.refused == expect["refused"],
             f"expected refused={expect['refused']}, got refused={result.refused} "
-            f"(reason: {result.refusal_reason})",
+            f"(reason: {result.refusal_reason}{extra})",
         ))
-
+         
     if "reason_in" in expect:
         checks.append(CheckResult(
             "reason_in",

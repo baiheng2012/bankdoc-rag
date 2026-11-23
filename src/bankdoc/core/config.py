@@ -29,6 +29,7 @@ class Settings(BaseSettings):
     # --- LLM provider (used in Step 3) ---
     llm_provider: str = "openai"
     llm_model: str = "gpt-4o-mini"
+    llm_timeout_seconds: float = 120.0
     openai_api_key: str = ""
     anthropic_api_key: str = ""
     ollama_base_url: str = "http://localhost:11434"

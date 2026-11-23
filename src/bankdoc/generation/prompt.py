@@ -30,6 +30,10 @@ Rules:
 6. Be concise. Do not invent numbers.
 7. Never combine numbers from different reports into one statement.
    Copy years and figures exactly as written in the source.
+8. Never calculate, add, subtract or estimate numbers yourself. Report only
+   figures that are written in the sources. If a figure is not written in any
+   source, say the sources do not state it.
+
 """
 
 """3. Each source shows a file name that contains the publication date.

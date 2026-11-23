@@ -57,6 +57,9 @@ def main() -> int:
                     if not check.passed:
                         print(f"          - {check.name}: {check.detail}")
                 print(f"          answer: {outcome.answer[:160]!r}")
+            if outcome.withheld:
+                print(f"          withheld raw answer: {outcome.withheld[:400]!r}")
+
     finally:
         close_pool()
 

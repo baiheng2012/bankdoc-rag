@@ -163,3 +163,9 @@ def test_shipped_dataset_is_valid_and_covers_every_category():
     cases = load_cases(ROOT / "eval" / "cases.yaml")
     assert len(cases) >= 25
     assert {c.category for c in cases} == set(CATEGORIES)
+
+def test_refused_detail_mentions_ungrounded_numbers():
+    result = make_result(refused=True, reason="ungrounded_numbers")
+    result.ungrounded_numbers = ["9.9"]
+    case = EvalCase("c", "answerable", "q", {"refused": False})
+    assert "9.9" in evaluate_case(case, result)[0].detail

@@ -26,6 +26,7 @@ class CaseOutcome:
     cited: list[str] = field(default_factory=list)
     seconds: float = 0.0
     error: str | None = None
+    withheld: str = ""  # raw answer a guardrail blocked (debug only)
 
 
 def run_case(case: EvalCase, answer_fn=answer_question) -> CaseOutcome:
@@ -65,6 +66,7 @@ def run_case(case: EvalCase, answer_fn=answer_question) -> CaseOutcome:
         cited=[f"{c.source_uri} p{c.page_number}" for c in result.citations] if result else [],
         seconds=time.perf_counter() - started,
         error=error,
+        withheld=result.withheld_answer if result else "",        
     )
 
 
@@ -129,6 +131,7 @@ def build_report(outcomes: list[CaseOutcome], meta: dict) -> dict:
                 "refusal_reason": o.refusal_reason,
                 "cited": o.cited,
                 "seconds": round(o.seconds, 2),
+                "withheld_answer": o.withheld,                
                 "failed_checks": [
                     {"name": c.name, "detail": c.detail} for c in o.checks if not c.passed
                 ],

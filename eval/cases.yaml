@@ -114,6 +114,44 @@
     refused: false
     cites_any: ["looking through"]
 
+# Vague, realistic questions. They exist to stress the retrieval threshold:
+# real users rarely name the report or use precise terms.
+- id: vague-infl-direction
+  category: answerable
+  question: "Is inflation going up or down?"
+  expect:
+    refused: false
+    cites_any: ["mpr-"]
+
+- id: vague-economy
+  category: answerable
+  question: "How is the economy doing?"
+  expect:
+    refused: false
+    cites_any: ["mpr-"]
+
+- id: vague-risks
+  category: answerable
+  question: "What are the main risks to the outlook?"
+  expect:
+    refused: false
+    cites_any: ["mpr-"]
+
+- id: vague-growth-pickup
+  category: answerable
+  question: "Will growth pick up?"
+  expect:
+    refused: false
+    cites_any: ["mpr-"]
+
+- id: vague-tariffs
+  category: answerable
+  question: "What are the effects of tariffs on prices?"
+  expect:
+    refused: false
+    cites_any: ["mpr-", "import tariffs"]
+
+
 # ===================== unanswerable: must refuse =====================
 
 - id: off-cookies

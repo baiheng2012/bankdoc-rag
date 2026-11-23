@@ -32,6 +32,8 @@ logger = logging.getLogger(__name__)
 BLOCKED_TEXT = "Your request was blocked by a security policy."
 UNVERIFIED_TEXT = "The generated answer could not be verified against the sources, so it was withheld."
 UNSUPPORTED_LANGUAGE_TEXT = "Please ask your question in English; other scripts are not supported yet."
+LLM_ERROR_TEXT = "The service could not generate an answer right now. Please try again later."
+
 
 @dataclass
 class AnswerResult:
@@ -41,7 +43,7 @@ class AnswerResult:
     refused: bool
     # Reasons: no_relevant_sources, model_refused, no_valid_citation, prompt_injection,
     #          unsafe_sources, output_leak, ungrounded_numbers
-    #unsupported_language
+    #unsupported_language,llm_error
     refusal_reason: str | None = None
     citations: list[RetrievedChunk] = field(default_factory=list)  # chunks actually cited
     invalid_citations: list[int] = field(default_factory=list)  # hallucinated numbers
@@ -51,6 +53,9 @@ class AnswerResult:
     redacted_question: str = ""
     pii_findings: dict[str, int] = field(default_factory=dict)  # e.g. {"EMAIL": 1}
     ungrounded_numbers: list[str] = field(default_factory=list)
+    # Raw model text that a guardrail withheld. For debugging and evaluation
+    # reports ONLY: the API never returns it (AskResponse does not include it).
+    withheld_answer: str = ""    
 
 
 def _refuse(
@@ -130,7 +135,17 @@ def answer_question(
         return finish(_refuse(reason, retrieved))
 
     provider = llm or get_llm()
-    raw_answer = provider.generate(SYSTEM_PROMPT, build_user_prompt(safe_question, relevant)).strip()
+    try:
+        raw_answer = provider.generate(
+            SYSTEM_PROMPT, build_user_prompt(safe_question, relevant)
+        ).strip()
+    except Exception:  # noqa: BLE001 - deliberate: any LLM failure must fail closed
+        # Timeout, connection refused, provider outage... Return a clean refusal
+        # so the request is still audited and the user gets a clear message.
+        logger.exception("LLM call failed")
+        return finish(_refuse("llm_error", retrieved, LLM_ERROR_TEXT))
+
+
 
     # The model itself said the sources do not contain the answer.
     if REFUSAL_TEXT.lower() in raw_answer.lower():
@@ -143,6 +158,7 @@ def answer_question(
         logger.warning("Answer withheld: no valid citation")
         result = _refuse("no_valid_citation", retrieved)
         result.invalid_citations = invalid
+        result.withheld_answer = raw_answer
         return finish(result)
 
     # Guardrail 5: the answer must not reproduce our system prompt.
@@ -152,11 +168,13 @@ def answer_question(
 
     # Guardrail 6: every number in the answer must appear in a cited chunk.
     cited = [relevant[n - 1] for n in valid]
-    ungrounded = find_ungrounded_numbers(raw_answer, cited)
+    ungrounded = find_ungrounded_numbers(raw_answer, relevant)
+
     if ungrounded:
         logger.warning("Answer withheld: ungrounded numbers %s", ungrounded)
         result = _refuse("ungrounded_numbers", retrieved, UNVERIFIED_TEXT)
         result.ungrounded_numbers = ungrounded
+        result.withheld_answer = raw_answer
         return finish(result)
 
     # Guardrail 7: redact PII that may have leaked into the answer text.
