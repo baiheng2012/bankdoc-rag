@@ -4,7 +4,12 @@
 # Lets pytest import "bankdoc" directly from the src/ folder.
 pythonpath = ["src"]
 testpaths = ["tests"]
+markers = ["integration: needs a real PostgreSQL with pgvector (set RUN_DB_TESTS=1)"]
 
 [tool.ruff]
 line-length = 100
 src = ["src"]
+[tool.ruff.lint.flake8-bugbear]
+# FastAPI's Depends()/Security() in argument defaults is the framework's
+# documented dependency-injection pattern and returns an immutable marker object.
+extend-immutable-calls = ["fastapi.Depends", "fastapi.Security"]

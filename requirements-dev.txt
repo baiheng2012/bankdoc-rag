@@ -1,0 +1,4 @@
+# Development and CI: runtime dependencies plus test and lint tools.
+-r requirements.txt
+pytest>=8.0
+ruff>=0.4

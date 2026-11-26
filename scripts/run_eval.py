@@ -18,10 +18,14 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "src"))
 
-from bankdoc.core.db import close_pool  # noqa: E402
-from bankdoc.evaluation.cases import load_cases  # noqa: E402
-from bankdoc.evaluation.runner import (  # noqa: E402
-    build_report, pass_rate, run_case, run_metadata, summarize,
+from bankdoc.core.db import close_pool
+from bankdoc.evaluation.cases import load_cases
+from bankdoc.evaluation.runner import (
+    build_report,
+    pass_rate,
+    run_case,
+    run_metadata,
+    summarize,
 )
 
 

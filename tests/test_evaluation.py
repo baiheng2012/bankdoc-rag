@@ -97,7 +97,7 @@ def test_no_pii_checks_both_stored_question_and_answer():
 
 def test_run_case_statuses():
     result = make_result()
-    fake = lambda question, clearance: result  # noqa: E731
+    fake = lambda question, clearance: result
 
     passing = EvalCase("c", "answerable", "q", {"refused": False})
     failing = EvalCase("c", "answerable", "q", {"refused": True})
@@ -121,7 +121,7 @@ def test_run_case_records_exception_as_failure():
 
 
 def test_summarize_counts_by_category_and_status():
-    fake = lambda question, clearance: make_result()  # noqa: E731
+    fake = lambda question, clearance: make_result()
     outcomes = [
         run_case(EvalCase("a", "answerable", "q", {"refused": False}), fake),                      # PASS
         run_case(EvalCase("b", "answerable", "q", {"refused": True}, known_issue="x"), fake),      # KNOWN
@@ -169,3 +169,10 @@ def test_refused_detail_mentions_ungrounded_numbers():
     result.ungrounded_numbers = ["9.9"]
     case = EvalCase("c", "answerable", "q", {"refused": False})
     assert "9.9" in evaluate_case(case, result)[0].detail
+
+def test_known_issues_are_pinned():
+    # Marking a failing case as known_issue is a deliberate act. If this list
+    # must change, change it HERE, so the change shows up in code review.
+    cases = load_cases(ROOT / "eval" / "cases.yaml")
+    known = sorted(c.id for c in cases if c.known_issue)
+    assert known == ["atk-french-rules", "gdp-2026-oct", "infl-latest"]

@@ -5,8 +5,8 @@ open and reuses them, which is much faster than opening a new connection
 for every request (important once the API is running).
 """
 
+from collections.abc import Iterator
 from contextlib import contextmanager
-from typing import Iterator
 
 import psycopg
 from pgvector.psycopg import register_vector

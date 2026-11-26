@@ -6,12 +6,10 @@ import pytest
 from bankdoc.generation import answerer
 from bankdoc.generation.prompt import SYSTEM_PROMPT
 from bankdoc.guardrails.injection import detect_injection
-from bankdoc.guardrails.output_checks import find_ungrounded_numbers, leaks_system_prompt
-from bankdoc.guardrails.pii import redact_pii
-from bankdoc.retrieval.retriever import RetrievedChunk
 from bankdoc.guardrails.language import is_supported_script
+from bankdoc.guardrails.output_checks import find_ungrounded_numbers, leaks_system_prompt
 from bankdoc.guardrails.pii import redact_pii, strip_placeholders
-
+from bankdoc.retrieval.retriever import RetrievedChunk
 
 
 def make_chunk(i: int, content: str = "plain content", uri: str | None = None) -> RetrievedChunk:

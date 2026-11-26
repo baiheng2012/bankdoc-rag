@@ -11,9 +11,9 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "src"))
 
-from bankdoc.core.config import get_settings  # noqa: E402
-from bankdoc.core.db import close_pool, get_connection  # noqa: E402
-from bankdoc.core.embedder import embed_query  # noqa: E402
+from bankdoc.core.config import get_settings
+from bankdoc.core.db import close_pool, get_connection
+from bankdoc.core.embedder import embed_query
 
 SEARCH_SQL = """
 SELECT d.title, c.page_number, c.access_level, c.content,

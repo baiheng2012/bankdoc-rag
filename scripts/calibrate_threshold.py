@@ -15,12 +15,12 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "src"))
 
-from bankdoc.core.db import close_pool  # noqa: E402
-from bankdoc.evaluation.cases import load_cases  # noqa: E402
-from bankdoc.guardrails.injection import detect_injection  # noqa: E402
-from bankdoc.guardrails.language import is_supported_script  # noqa: E402
-from bankdoc.guardrails.pii import redact_pii, strip_placeholders  # noqa: E402
-from bankdoc.retrieval.retriever import retrieve  # noqa: E402
+from bankdoc.core.db import close_pool
+from bankdoc.evaluation.cases import load_cases
+from bankdoc.guardrails.injection import detect_injection
+from bankdoc.guardrails.language import is_supported_script
+from bankdoc.guardrails.pii import redact_pii, strip_placeholders
+from bankdoc.retrieval.retriever import retrieve
 
 THRESHOLDS = [round(0.50 + 0.025 * i, 3) for i in range(11)]  # 0.50 ... 0.75
 

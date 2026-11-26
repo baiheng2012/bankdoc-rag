@@ -14,10 +14,10 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "src"))
 
-import psycopg  # noqa: E402
+import psycopg
 
-from bankdoc.api.auth import generate_api_key, hash_api_key  # noqa: E402
-from bankdoc.core.db import close_pool, get_connection  # noqa: E402
+from bankdoc.api.auth import generate_api_key, hash_api_key
+from bankdoc.core.db import close_pool, get_connection
 
 
 def main() -> None:

@@ -18,8 +18,8 @@ from pathlib import Path
 # Allow running without installing the package.
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "src"))
 
-from bankdoc.core.db import close_pool  # noqa: E402
-from bankdoc.ingestion.pipeline import ingest_file  # noqa: E402
+from bankdoc.core.db import close_pool
+from bankdoc.ingestion.pipeline import ingest_file
 
 ACCESS_LEVEL_BY_FOLDER = {"public": 0, "internal": 1, "restricted": 2}
 

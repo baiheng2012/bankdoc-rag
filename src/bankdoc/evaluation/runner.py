@@ -3,7 +3,7 @@
 import subprocess
 import time
 from dataclasses import dataclass, field
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 
 from bankdoc.core.config import get_settings
 from bankdoc.evaluation.cases import EvalCase
@@ -102,7 +102,7 @@ def run_metadata() -> dict:
     except Exception:  # noqa: BLE001 - not a git checkout, or git missing
         commit = "unknown"
     return {
-        "timestamp": datetime.now(timezone.utc).isoformat(timespec="seconds"),
+        "timestamp": datetime.now(UTC).isoformat(timespec="seconds"),
         "git_commit": commit,
         "llm_provider": settings.llm_provider,
         "llm_model": settings.llm_model,

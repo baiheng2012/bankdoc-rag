@@ -14,12 +14,12 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "src"))
 
-from bankdoc.core.config import get_settings  # noqa: E402
-from bankdoc.core.db import close_pool  # noqa: E402
-from bankdoc.guardrails.injection import detect_injection  # noqa: E402
-from bankdoc.guardrails.pii import redact_pii, strip_placeholders  # noqa: E402
-from bankdoc.retrieval.recency import sort_newest_first  # noqa: E402
-from bankdoc.retrieval.retriever import retrieve  # noqa: E402
+from bankdoc.core.config import get_settings
+from bankdoc.core.db import close_pool
+from bankdoc.guardrails.injection import detect_injection
+from bankdoc.guardrails.pii import redact_pii, strip_placeholders
+from bankdoc.retrieval.recency import sort_newest_first
+from bankdoc.retrieval.retriever import retrieve
 
 
 def main() -> None:

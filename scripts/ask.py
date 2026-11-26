@@ -12,8 +12,8 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "src"))
 
-from bankdoc.core.db import close_pool  # noqa: E402
-from bankdoc.generation.answerer import answer_question  # noqa: E402
+from bankdoc.core.db import close_pool
+from bankdoc.generation.answerer import answer_question
 
 
 def main() -> None:

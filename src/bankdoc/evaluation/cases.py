@@ -52,8 +52,8 @@ def load_cases(path: Path) -> list[EvalCase]:
     """
     data = yaml.safe_load(path.read_text(encoding="utf-8"))
     if not isinstance(data, list):
-        raise ValueError(f"{path}: the top level must be a list of cases")
-
+        #raise ValueError(f"{path}: the top level must be a list of cases")
+        raise TypeError(f"{path}: the top level must be a list of cases")
     cases: list[EvalCase] = []
     seen_ids: set[str] = set()
     for position, item in enumerate(data, start=1):

@@ -18,14 +18,11 @@ from bankdoc.generation.citations import extract_citation_numbers, split_valid_i
 from bankdoc.generation.llm import LLMProvider, get_llm
 from bankdoc.generation.prompt import REFUSAL_TEXT, SYSTEM_PROMPT, build_user_prompt
 from bankdoc.guardrails.injection import detect_injection
+from bankdoc.guardrails.language import is_supported_script
 from bankdoc.guardrails.output_checks import find_ungrounded_numbers, leaks_system_prompt
-from bankdoc.guardrails.pii import redact_pii
+from bankdoc.guardrails.pii import redact_pii, strip_placeholders
 from bankdoc.retrieval.recency import sort_newest_first
 from bankdoc.retrieval.retriever import RetrievedChunk, retrieve
-from bankdoc.guardrails.language import is_supported_script
-from bankdoc.guardrails.pii import redact_pii, strip_placeholders
-
-
 
 logger = logging.getLogger(__name__)
 
@@ -139,7 +136,7 @@ def answer_question(
         raw_answer = provider.generate(
             SYSTEM_PROMPT, build_user_prompt(safe_question, relevant)
         ).strip()
-    except Exception:  # noqa: BLE001 - deliberate: any LLM failure must fail closed
+    except Exception:
         # Timeout, connection refused, provider outage... Return a clean refusal
         # so the request is still audited and the user gets a clear message.
         logger.exception("LLM call failed")
